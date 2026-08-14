@@ -6,10 +6,13 @@ Static site on Netlify. No CMS, no build step. Commit to `main`, Netlify deploys
 
 ## Publishing a post
 
-1. Upload the hero image at `/upload.html`, copy the URL it returns.
-2. In Claude: *"write a blog for Dobby about X"* — paste the image URL.
-3. Review the draft.
-4. *"make it live"* — Claude commits, Netlify deploys.
+1. In Claude Code: *"write a blog for Dobby about X"* — attach the hero image.
+2. Review the draft.
+3. *"make it live"* — Claude commits the post, the index card, the sitemap entry and the image. Netlify deploys.
+
+Hero images live in the repo at `blog/images/<slug>.webp` — filename must match the slug.
+
+> **Claude Code vs claude.ai.** Claude can only place the image file when it has filesystem access, which means Claude Code. On claude.ai the GitHub connector writes text only; Claude will commit the post and tell you to drag the image into `blog/images/` on github.com. Everything else is identical.
 
 ## Layout
 
@@ -19,9 +22,8 @@ assets/site.js         scroll reveal + mobile menu
 blog/_TEMPLATE.html    post skeleton, copied for each new post
 blog/index.html        card grid, insertion marker at CARDS:START
 blog/<slug>/index.html one published post
-blog/images/           legacy images; new ones go to Cloudinary
+blog/images/           hero images, named after the slug
 sitemap.xml            insertion marker at URLS:START
-upload.html            Cloudinary uploader — needs CLOUD_NAME + UPLOAD_PRESET set once
 robots.txt             blocks all crawlers (demo only)
 BLOG-PLAYBOOK.md       the rules
 ```
@@ -30,6 +32,4 @@ BLOG-PLAYBOOK.md       the rules
 
 **Netlify** — build command empty, publish directory `.`
 
-**Cloudinary** — free account, then set `CLOUD_NAME` and `UPLOAD_PRESET` at the top of `upload.html`. The preset must be **unsigned**, so the page holds no secret and nothing expires.
-
-**Claude** — enable the GitHub connector on claude.ai and grant it write access to this repo.
+**Claude** — for the claude.ai flow, enable the GitHub connector and grant it write access to this repo. For the Claude Code flow, just clone the repo and work in it.

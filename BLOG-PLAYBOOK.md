@@ -74,25 +74,57 @@ No `<div>`, no `<span>`, no `style=` attributes, no inline CSS. Styling is handl
 
 ## The hero image
 
-Every post needs one. **You never upload it — you only reference its URL.**
-
-The user gets the URL from `/upload.html` on the site: they drop the image, the page returns a URL, they paste it to you. It looks like:
+Every post needs one. It lives in the repo at:
 
 ```
-https://res.cloudinary.com/<cloud>/image/upload/f_auto,q_auto/dobby-blog/<name>.jpg
+blog/images/<slug>.webp
 ```
 
-Use that string for `{{HERO_IMAGE}}`, unchanged.
+Filename must equal the slug exactly. `{{HERO_IMAGE}}` is then `/blog/images/<slug>.webp`.
 
-**If the user has not given you an image URL, ask for it before publishing.** Do not invent a URL, do not guess a filename, do not publish without one — a post with a broken hero image looks worse than no post.
+### Getting it there
 
-Older posts use repo-local paths like `/blog/images/<slug>.webp` instead. Both work. Leave existing posts alone.
+The user supplies the image. You put it in place by **copying the file** — never by generating or re-encoding it.
+
+```bash
+cp "<path the user gave you>" blog/images/<slug>.webp
+git add blog/images/<slug>.webp
+```
+
+If the file is a JPG or PNG, keep the real extension (`blog/images/<slug>.jpg`) and point `{{HERO_IMAGE}}` at that. Do not rename a JPG to `.webp` — the extension has to match the actual format or browsers and Google both complain.
+
+### This only works when you have filesystem access
+
+| Where you are running | Can you place the image? |
+|---|---|
+| Claude Code (desktop or CLI) | **Yes.** The image is a file on disk. Copy it. |
+| claude.ai with the GitHub connector | **No.** You can only write text through the API. You cannot reproduce the bytes of an image the user attached to the chat. |
+
+**If you are on claude.ai and the image is not already in the repo:** write the post and commit the text files, then tell the user in plain words:
+
+> The post is live but the hero image is missing. Upload your image to `blog/images/<slug>.webp` — open the repo on github.com, go to that folder, click Add file › Upload files, drag it in, commit. Netlify will redeploy and the image will appear.
+
+Do not stall waiting for the image, and do not invent a URL or a filename. A post with a temporarily missing hero recovers in one drag-and-drop. A post referencing an image that never existed is silently broken forever.
+
+### Rules
+
+- Never commit an image you generated, re-encoded, or reconstructed from base64. Only ever copy the user's actual file.
+- Keep hero images under about 200KB. If the user's file is much larger, say so and ask for a compressed version rather than committing a 4MB page-killer.
+- Never rename or delete an existing image. Older posts reference them.
 
 ---
 
 ## Publishing
 
-Exactly three files change. Commit them together, one commit.
+Three text files change, plus the image file when you are able to place it. All of it goes in **one commit**.
+
+### 0. Place the hero image — only if you have filesystem access
+
+```bash
+cp "<path the user gave you>" blog/images/<slug>.webp
+```
+
+Skip this on claude.ai and tell the user to upload it, as described above.
 
 ### 1. Create `blog/<slug>/index.html`
 
@@ -145,12 +177,14 @@ Date: <DATE_DISPLAY>
 - [ ] Template instruction comment removed
 - [ ] Slug in the folder name, canonical, og:url, JSON-LD and sitemap all match exactly
 - [ ] `DATE_DISPLAY` and `DATE_ISO` are the same day
-- [ ] Hero image URL is present in `og:image`, `twitter:image`, JSON-LD `image`, the `<img>` tag, and the index card
+- [ ] Hero image path `/blog/images/<slug>.<ext>` appears in `og:image`, `twitter:image`, JSON-LD `image`, the `<img>` tag, and the index card — identical in all five
+- [ ] Image extension matches the file's real format
+- [ ] Image file is either committed, or the user has been told exactly where to upload it
 - [ ] Body uses only the allowed tags, no inline styles
 - [ ] Post ends with the FAQ section
 - [ ] Three related cards, all pointing at posts that actually exist
 - [ ] Card added below `CARDS:START`, sitemap entry added below `URLS:START`
-- [ ] All three files in one commit
+- [ ] Everything in one commit
 
 ---
 
@@ -160,7 +194,7 @@ Date: <DATE_DISPLAY>
 - Never edit `blog/_TEMPLATE.html` while publishing. Changing it changes every future post.
 - Never change the nav or footer in one page only. They are identical everywhere by design.
 - Never rename or delete an existing post folder. The URL is indexed by Google; breaking it loses the ranking that post earned.
-- Never commit binary files (images, video). You cannot reproduce their bytes faithfully. Images go through `/upload.html`.
+- Never generate, re-encode, or reconstruct an image file. Copy the user's real file, or leave it to them. See *The hero image* above.
 
 ---
 
