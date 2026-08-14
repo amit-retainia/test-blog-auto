@@ -48,7 +48,11 @@ Use today's date unless the user gives one. **Ask if you are not certain what to
 <p> <h2> <h3> <ul> <ol> <li> <strong> <a>
 ```
 
-No `<div>`, no `<span>`, no `style=` attributes, no inline CSS. Styling is handled by `/assets/site.css`. If something looks wrong, the stylesheet is what changes — never the post.
+That list is exhaustive. Anything not on it is not allowed — in particular **no `<hr>`**, no `<div>`, no `<span>`, no `<br>`, no `<blockquote>`, no `<table>`, no `style=` attributes, no inline CSS.
+
+`<hr>` is the one that gets reached for most often, as a separator between sections. Do not use it. `<h2>` already carries the spacing that separates sections; a horizontal rule on this dark theme reads as a design mistake.
+
+Styling is handled by `/assets/site.css`. If something looks wrong, the stylesheet is what changes — never the post.
 
 **Structure that works here:**
 - Opening paragraph that states the problem in plain terms. No throat-clearing.
@@ -100,11 +104,13 @@ If the file is a JPG or PNG, keep the real extension (`blog/images/<slug>.jpg`) 
 | Claude Code (desktop or CLI) | **Yes.** The image is a file on disk. Copy it. |
 | claude.ai with the GitHub connector | **No.** You can only write text through the API. You cannot reproduce the bytes of an image the user attached to the chat. |
 
-**If you are on claude.ai and the image is not already in the repo:** write the post and commit the text files, then tell the user in plain words:
+**If you are on claude.ai and the image is not already in the repo:** publish anyway. On "make it live", commit the three text files immediately, then tell the user in plain words:
 
 > The post is live but the hero image is missing. Upload your image to `blog/images/<slug>.webp` — open the repo on github.com, go to that folder, click Add file › Upload files, drag it in, commit. Netlify will redeploy and the image will appear.
 
-Do not stall waiting for the image, and do not invent a URL or a filename. A post with a temporarily missing hero recovers in one drag-and-drop. A post referencing an image that never existed is silently broken forever.
+**Do not hold the publish waiting for an image, and do not offer to place the file yourself.** On claude.ai you cannot place it — saying you will and then failing is worse than saying so up front. Reference the path `/blog/images/<slug>.webp` in the post as normal; it resolves the moment the user uploads.
+
+Never invent a URL or a filename. A post with a temporarily missing hero recovers in one drag-and-drop. A post referencing an image that never existed is silently broken forever.
 
 ### Rules
 
@@ -181,7 +187,7 @@ Date: <DATE_DISPLAY>
 - [ ] Hero path also correct in the `<img>` tag and the index card (relative is right in those two)
 - [ ] Image extension matches the file's real format
 - [ ] Image file is either committed, or the user has been told exactly where to upload it
-- [ ] Body uses only the allowed tags, no inline styles
+- [ ] Body uses only the allowed tags — no `<hr>`, `<div>`, `<br>`, `<table>` or inline styles
 - [ ] Post ends with the FAQ section
 - [ ] Up to three related cards, every one pointing at a post that actually exists
 - [ ] Card added below `CARDS:START`, sitemap entry added below `URLS:START`

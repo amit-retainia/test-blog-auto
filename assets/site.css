@@ -95,6 +95,9 @@ article ul{padding-left:1.5rem;list-style:disc;margin-bottom:1.25rem}
 article ol{padding-left:1.5rem;list-style:decimal;margin-bottom:1.25rem}
 article ul li::marker{color:var(--acc)}
 article ul li,article ol li{margin-bottom:.5rem;color:#fff;font-weight:300;font-size:var(--fs-body);line-height:1.7}
+/* Defensive: <hr> is not allowed in post bodies (see BLOG-PLAYBOOK.md).
+   Styled anyway so a stray one degrades on-brand instead of a bright default rule. */
+article hr{border:0;height:1px;background:var(--bdr2);margin:2.5rem 0}
 article strong{font-weight:600;color:#fff}
 article a{color:var(--acc)}
 article a:hover{text-decoration:underline}
