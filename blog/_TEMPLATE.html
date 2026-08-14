@@ -11,7 +11,7 @@
     {{DATE_DISPLAY}}  human date        e.g. June 16, 2026
     {{DATE_ISO}}      machine date      e.g. 2026-06-16
     {{AUTHOR}}        author name       e.g. Prathna Jeswani
-    {{HERO_IMAGE}}    /blog/images/{{SLUG}}.webp  — extension must match the real file
+    {{HERO_IMAGE}}    /blog/images/{{SLUG}}.webp  — must start with /, extension must match the real file
     {{BODY}}          article HTML — only <p> <h2> <h3> <ul> <ol> <li> <strong> <a>
     {{RELATED}}       three related-post cards, see blog/index.html for card markup
 
@@ -36,7 +36,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{TITLE}}">
 <meta property="og:description" content="{{META_DESC}}">
-<meta property="og:image" content="{{HERO_IMAGE}}">
+<meta property="og:image" content="https://www.dobbyads.com{{HERO_IMAGE}}">
 <meta property="og:url" content="https://www.dobbyads.com/blog/{{SLUG}}">
 <meta property="og:site_name" content="Dobby Ads">
 <meta property="article:published_time" content="{{DATE_ISO}}">
@@ -44,7 +44,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{TITLE}}">
 <meta name="twitter:description" content="{{META_DESC}}">
-<meta name="twitter:image" content="{{HERO_IMAGE}}">
+<meta name="twitter:image" content="https://www.dobbyads.com{{HERO_IMAGE}}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +60,7 @@
   "@type": "BlogPosting",
   "headline": "{{TITLE}}",
   "description": "{{META_DESC}}",
-  "image": "{{HERO_IMAGE}}",
+  "image": "https://www.dobbyads.com{{HERO_IMAGE}}",
   "author": { "@type": "Person", "name": "{{AUTHOR}}" },
   "publisher": { "@type": "Organization", "name": "Dobby Ads", "url": "https://www.dobbyads.com" },
   "datePublished": "{{DATE_ISO}}",

@@ -56,7 +56,7 @@ No `<div>`, no `<span>`, no `style=` attributes, no inline CSS. Styling is handl
 - `<h3>` only inside a section, never as a section header.
 - Close with an `<h2>` titled exactly `Frequently Asked Questions`, then `<h3>` question / `<p>` answer pairs. This is not optional — it feeds search result rich snippets.
 
-**Related posts** — pick 3 existing posts, most topically relevant. Card markup for `{{RELATED}}`:
+**Related posts** — pick the 3 most topically relevant posts that already exist. If the blog has fewer than 3 other posts, use all of them; never link a post that does not exist. Card markup for `{{RELATED}}`:
 
 ```html
       <a href="/blog/SLUG" class="blog-card r">
@@ -177,12 +177,13 @@ Date: <DATE_DISPLAY>
 - [ ] Template instruction comment removed
 - [ ] Slug in the folder name, canonical, og:url, JSON-LD and sitemap all match exactly
 - [ ] `DATE_DISPLAY` and `DATE_ISO` are the same day
-- [ ] Hero image path `/blog/images/<slug>.<ext>` appears in `og:image`, `twitter:image`, JSON-LD `image`, the `<img>` tag, and the index card — identical in all five
+- [ ] `{{HERO_IMAGE}}` starts with `/` — the template prefixes `https://www.dobbyads.com` for `og:image`, `twitter:image` and JSON-LD, which are **required to be absolute URLs**. A relative path there means no image in social previews and an invalid `BlogPosting`.
+- [ ] Hero path also correct in the `<img>` tag and the index card (relative is right in those two)
 - [ ] Image extension matches the file's real format
 - [ ] Image file is either committed, or the user has been told exactly where to upload it
 - [ ] Body uses only the allowed tags, no inline styles
 - [ ] Post ends with the FAQ section
-- [ ] Three related cards, all pointing at posts that actually exist
+- [ ] Up to three related cards, every one pointing at a post that actually exists
 - [ ] Card added below `CARDS:START`, sitemap entry added below `URLS:START`
 - [ ] Everything in one commit
 
