@@ -1,0 +1,10 @@
+# DEMO SITE — keep it out of search results entirely.
+# When this pipeline moves to the real dobbyads.com repo, replace this file with:
+#
+#   User-agent: *
+#   Allow: /
+#
+#   Sitemap: https://www.dobbyads.com/sitemap.xml
+
+User-agent: *
+Disallow: /

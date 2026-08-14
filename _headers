@@ -1,0 +1,13 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/assets/*
+  Cache-Control: public, max-age=604800
+
+/blog/images/*
+  Cache-Control: public, max-age=2592000
+
+/logo.webp
+  Cache-Control: public, max-age=2592000

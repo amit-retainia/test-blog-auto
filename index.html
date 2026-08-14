@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="/favicon.png">
+<title>Dobby Ads — Blog Automation Demo</title>
+<meta name="description" content="Demo site for the Dobby Ads automated blog publishing pipeline.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><img src="/logo.webp" alt="Dobby Ads" class="logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/upload.html">Upload Image</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://calendly.com/dobby_ads_call/30min" target="_blank" rel="noopener" class="nav-cta">Book a Call</a>
+    <button class="hamburger" id="hb" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div id="mob-menu">
+  <a href="/blog">Blog</a>
+  <a href="/upload.html">Upload Image</a>
+</div>
+
+<div class="blog-hero">
+  <div class="wrap">
+    <div class="sec-label center r">DEMO</div>
+    <h1 class="r d1">Blog Publishing Pipeline</h1>
+    <p class="r d2">Sandbox for the automated publishing flow. Claude writes the post, commits it, Netlify deploys it. Nothing here is indexed by search engines.</p>
+  </div>
+</div>
+
+<div class="blog-section">
+  <div class="wrap" style="max-width:720px">
+    <h2 style="font-size:1.625rem;font-weight:700;margin-bottom:1.5rem">How to publish</h2>
+    <ol style="padding-left:1.5rem;list-style:decimal">
+      <li style="margin-bottom:.75rem;font-size:1.125rem">Upload the hero image at <a href="/upload.html" style="color:var(--acc)">/upload.html</a> and copy the URL it gives you.</li>
+      <li style="margin-bottom:.75rem;font-size:1.125rem">In Claude, ask for the post. Paste the image URL when asked.</li>
+      <li style="margin-bottom:.75rem;font-size:1.125rem">Say <strong>&ldquo;make it live&rdquo;</strong>. Claude commits to GitHub.</li>
+      <li style="margin-bottom:.75rem;font-size:1.125rem">Netlify deploys in about a minute. Check <a href="/blog" style="color:var(--acc)">/blog</a>.</li>
+    </ol>
+    <p style="margin-top:2rem;color:rgba(255,255,255,.6)">Rules Claude follows live in <strong>BLOG-PLAYBOOK.md</strong> in the repository.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-bottom" style="border-top:none">
+      <span>&copy; Dobby Ads. Demo environment.</span>
+      <span><a href="/blog">Blog</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+</body>
+</html>

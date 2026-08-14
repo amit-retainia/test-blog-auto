@@ -1,0 +1,8 @@
+# Netlify redirects.
+
+# Clean blog URLs — /blog/<slug> serves /blog/<slug>/index.html.
+# Netlify does this automatically for directories, so no rule needed.
+
+# Keep internal repo docs off the public site.
+/BLOG-PLAYBOOK.md    /404.html    404
+/*.md                /404.html    404
