@@ -12,10 +12,12 @@ This is a static HTML site on Netlify. There is no CMS, no build step, no databa
 
 | The user says | You do |
 |---|---|
-| "write a blog for Dobby about X" | Draft the post. Show it in chat. **Commit nothing.** |
+| "write a blog for Dobby about X" | Write the post, then show it as a **rendered preview artifact**. **Commit nothing.** |
 | "make it live" / "publish it" | Branch, commit, open a pull request, merge it — see *Publishing*. |
 
 Never commit on the first command. Drafting and publishing are always separate steps, so the user gets a review pass.
+
+**Do not paste the full page HTML into the chat.** It is 400 lines of boilerplate the user cannot read. Show the preview artifact instead — see *Previewing* below.
 
 ---
 
@@ -128,6 +130,58 @@ Until a real URL exists, leave the five image references pointing at the URL the
 
 ---
 
+## Previewing — always, before publishing
+
+The user approves a rendered page, not a wall of markup. After writing the post, publish it as an **artifact** so they can see it the way a reader would.
+
+### Building the preview
+
+Take the finished post HTML and make exactly three changes **for the artifact only**:
+
+1. **Inline the stylesheet.** Read `assets/site.css` and paste its contents into a `<style>` block, replacing `<link rel="stylesheet" href="/assets/site.css">`. Artifacts cannot load files from the site, so without this the page renders as unstyled text.
+2. **Stub the hero image.** Artifacts block external hosts, so the R2 URL will not load. Replace the hero `<img>` with:
+
+```html
+<div style="width:100%;aspect-ratio:16/9;border-radius:12px;border:1px solid rgba(255,255,255,.11);background:#141414;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:.9rem;margin-top:2rem">Hero image — renders on the live site</div>
+```
+
+3. **Delete the Google Analytics script.** It does nothing in a preview and the request is blocked anyway.
+
+Change nothing else. Same copy, same headings, same structure — the point is that the user sees the real thing.
+
+### Tell the user what the preview cannot show
+
+State these plainly, every time, so nothing gets reported as a bug:
+
+- **Fonts differ.** Urbanist loads from Google Fonts, which artifacts block. The live page uses Urbanist; the preview falls back to a system font.
+- **The hero image is a placeholder.** The real one renders once published.
+- Nav and footer links do not navigate.
+
+### Alongside the artifact, show these in chat
+
+The things the preview cannot reveal:
+
+```
+Slug:          <slug>
+Date:          <DATE_DISPLAY>  /  <DATE_ISO>
+Meta desc:     <the description, so they can judge the length>
+Hero image:    <the URL, or "not supplied yet">
+Related posts: <the three slugs>
+Files:         blog/<slug>/index.html, blog/index.html, sitemap.xml
+```
+
+Then ask for confirmation and stop. Wait for "make it live".
+
+### The rule that matters most
+
+**The preview and the committed file are different files.** The committed post keeps `<link rel="stylesheet" href="/assets/site.css">`, the real hero `<img>`, and the analytics script.
+
+Never commit the preview version. Inlined CSS in a post breaks the one-stylesheet rule the whole site depends on, and a placeholder `<div>` where the hero should be is a broken post. Build the artifact from a copy; commit the original.
+
+If the user asks for changes, edit the post, rebuild the artifact, and ask again. Loop until they approve.
+
+---
+
 ## What you are allowed to change
 
 Publishing a post touches exactly these paths, and nothing else:
@@ -227,6 +281,10 @@ Netlify deploys on the merge to `main`, not on the branch push. Nothing is live 
 
 ## Checklist before you commit
 
+- [ ] The user saw a preview artifact and said to publish
+- [ ] The committed file keeps `<link rel="stylesheet" href="/assets/site.css">` — CSS is NOT inlined
+- [ ] The committed file has the real hero `<img>`, not the preview placeholder `<div>`
+- [ ] The committed file still has the analytics script
 - [ ] No `{{` left anywhere in the new file
 - [ ] Template instruction comment removed
 - [ ] Slug in the folder name, canonical, og:url, JSON-LD and sitemap all match exactly
