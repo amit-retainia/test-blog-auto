@@ -2,7 +2,9 @@
 
 **Claude: read this file completely before writing or publishing any post. It is the only source of truth for how posts are built here.**
 
-This is a static HTML site on Netlify. There is no CMS, no build step, no database. A post goes live when its files are committed to `main` — Netlify redeploys automatically, roughly 60 seconds later.
+This is a static HTML site on Netlify. There is no CMS, no build step, no database. A post goes live when a pull request lands on `main` — Netlify redeploys automatically, roughly 60 seconds later.
+
+`main` is protected. You cannot push to it directly, and you must not try.
 
 ---
 
@@ -10,8 +12,8 @@ This is a static HTML site on Netlify. There is no CMS, no build step, no databa
 
 | The user says | You do |
 |---|---|
-| "write a blog for Dobby about X" | Draft the post. Show it in chat. **Do not commit.** |
-| "make it live" / "publish it" | Commit the three files in *Publishing* below. |
+| "write a blog for Dobby about X" | Draft the post. Show it in chat. **Commit nothing.** |
+| "make it live" / "publish it" | Branch, commit, open a pull request, merge it — see *Publishing*. |
 
 Never commit on the first command. Drafting and publishing are always separate steps, so the user gets a review pass.
 
@@ -126,9 +128,30 @@ Until a real URL exists, leave the five image references pointing at the URL the
 
 ---
 
+## What you are allowed to change
+
+Publishing a post touches exactly these paths, and nothing else:
+
+```
+blog/<slug>/index.html     the new post
+blog/index.html            the card grid
+sitemap.xml                the url list
+blog/images/<slug>.<ext>   only if you are placing the image locally
+```
+
+Everything else in this repo is off limits while publishing — the homepage, `assets/site.css`, `_headers`, `_redirects`, `robots.txt`, `blog/_TEMPLATE.html`, this playbook, and anything under `.github/`.
+
+This is not only a rule. `.github/CODEOWNERS` plus branch protection makes GitHub **refuse the merge** if your pull request touches any of those. If a merge is blocked for that reason, do not try to work around it — say what you changed and why, and let the user decide.
+
+If the user asks for a design change, that is a separate job with its own pull request, not something you fold into a post.
+
+---
+
 ## Publishing
 
-Three text files change, plus the image file when you are able to place it. All of it goes in **one commit**.
+Never push to `main`. `main` is protected and direct pushes are rejected.
+
+The flow is: **branch → commit → pull request → merge**. Merging is what deploys.
 
 ### 0. Upload the hero image — only if you have the file on disk
 
@@ -174,7 +197,15 @@ Insert directly **below** `<!-- URLS:START -->`:
   </url>
 ```
 
-### Commit message
+### 4. Branch, commit, pull request, merge
+
+Create the branch first, put all three files on it in **one commit**, then open a pull request into `main` and merge it.
+
+```
+branch:  post/<slug>
+```
+
+Commit message:
 
 ```
 Publish: <post title>
@@ -182,6 +213,15 @@ Publish: <post title>
 Slug: <slug>
 Date: <DATE_DISPLAY>
 ```
+
+Pull request title: `Publish: <post title>`
+Pull request body: the slug, the date, and one line on what the post covers.
+
+Then merge it — squash merge, delete the branch.
+
+**If the merge is refused**, GitHub is telling you the diff touched a protected path. Do not retry, do not force it, do not open a second pull request. Report which files you changed and stop.
+
+Netlify deploys on the merge to `main`, not on the branch push. Nothing is live until the pull request is merged.
 
 ---
 
@@ -199,7 +239,9 @@ Date: <DATE_DISPLAY>
 - [ ] Post ends with the FAQ section
 - [ ] Up to three related cards, every one pointing at a post that actually exists
 - [ ] Card added below `CARDS:START`, sitemap entry added below `URLS:START`
-- [ ] Everything in one commit
+- [ ] Only these paths changed: blog/<slug>/, blog/index.html, sitemap.xml
+- [ ] Nothing outside them — no homepage, no assets/, no _TEMPLATE, no .github/
+- [ ] One commit, on branch post/<slug>, merged via pull request — never pushed to main
 
 ---
 
