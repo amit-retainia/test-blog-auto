@@ -78,45 +78,51 @@ Styling is handled by `/assets/site.css`. If something looks wrong, the styleshe
 
 ## The hero image
 
-Every post needs one. It lives in the repo at:
+Every post needs one. Hero images are **not** stored in this repo — they live in Cloudflare R2 and the post references a full URL.
+
+`{{HERO_IMAGE}}` is therefore an absolute URL like:
 
 ```
-blog/images/<slug>.webp
+https://pub-xxxxxxxx.r2.dev/blog/amazon-bullet-points-that-convert.webp
 ```
 
-Filename must equal the slug exactly. `{{HERO_IMAGE}}` is then `/blog/images/<slug>.webp`.
+That URL is public and permanent. Nothing about it expires.
 
-### Getting it there
+### When the user gives you an image file
 
-The user supplies the image. You put it in place by **copying the file** — never by generating or re-encoding it.
+Upload it, then use the URL the script prints:
 
 ```bash
-cp "<path the user gave you>" blog/images/<slug>.webp
-git add blog/images/<slug>.webp
+node --env-file=.env scripts/upload-image.mjs "<path the user gave you>" <slug>
 ```
 
-If the file is a JPG or PNG, keep the real extension (`blog/images/<slug>.jpg`) and point `{{HERO_IMAGE}}` at that. Do not rename a JPG to `.webp` — the extension has to match the actual format or browsers and Google both complain.
+It prints one line to stdout — the public URL. Use that string verbatim for `{{HERO_IMAGE}}`, in all five places (`og:image`, `twitter:image`, JSON-LD `image`, the `<img>` tag, the index card).
 
-### This only works when you have filesystem access
+The object key is `blog/<slug>.<ext>`, keeping the real extension. Never rename a JPG to `.webp`; the extension must match the actual format.
 
-| Where you are running | Can you place the image? |
+### This requires the actual file on disk
+
+| Where you are running | Can you upload the image? |
 |---|---|
-| Claude Code (desktop or CLI) | **Yes.** The image is a file on disk. Copy it. |
-| claude.ai with the GitHub connector | **No.** You can only write text through the API. You cannot reproduce the bytes of an image the user attached to the chat. |
+| Claude Code (desktop or CLI) | **Yes.** The image is a file. Run the script. |
+| claude.ai with the GitHub connector | **No.** An image attached to a chat reaches you as vision input, not bytes. You cannot re-emit it — not to R2, not to GitHub, not anywhere. |
 
-**If you are on claude.ai and the image is not already in the repo:** publish anyway. On "make it live", commit the three text files immediately, then tell the user in plain words:
+**If you are on claude.ai:** publish anyway. On "make it live", commit the three text files immediately, then tell the user:
 
-> The post is live but the hero image is missing. Upload your image to `blog/images/<slug>.webp` — open the repo on github.com, go to that folder, click Add file › Upload files, drag it in, commit. Netlify will redeploy and the image will appear.
+> The post is live but the hero image is missing. Run this from the repo, then tell me the URL it prints and I'll wire it in:
+> `node --env-file=.env scripts/upload-image.mjs <your-image> <slug>`
+> Or upload it however you like and send me the public URL.
 
-**Do not hold the publish waiting for an image, and do not offer to place the file yourself.** On claude.ai you cannot place it — saying you will and then failing is worse than saying so up front. Reference the path `/blog/images/<slug>.webp` in the post as normal; it resolves the moment the user uploads.
+**Do not hold the publish waiting for an image, and do not offer to upload it yourself when you are on claude.ai.** Saying you will and then failing wastes the user's time. Say up front that you cannot.
 
-Never invent a URL or a filename. A post with a temporarily missing hero recovers in one drag-and-drop. A post referencing an image that never existed is silently broken forever.
+Until a real URL exists, leave the five image references pointing at the URL the user will produce — ask for it rather than guessing. **Never invent a URL.** A post whose hero arrives ten minutes late is fine. A post pointing at a URL that never existed is silently broken forever.
 
 ### Rules
 
-- Never commit an image you generated, re-encoded, or reconstructed from base64. Only ever copy the user's actual file.
-- Keep hero images under about 200KB. If the user's file is much larger, say so and ask for a compressed version rather than committing a 4MB page-killer.
-- Never rename or delete an existing image. Older posts reference them.
+- Never generate, re-encode, or reconstruct an image. Only ever upload the user's actual file.
+- Keep hero images under about 200KB. If the user's file is much larger, say so and ask for a compressed version rather than shipping a 4MB page-killer.
+- Never overwrite an existing key. Slugs are unique, so this only happens if you reuse a slug — which you must not do anyway.
+- Older posts reference `/blog/images/<slug>.webp` inside the repo. That still works. Leave them alone; only new posts use R2.
 
 ---
 
@@ -124,13 +130,15 @@ Never invent a URL or a filename. A post with a temporarily missing hero recover
 
 Three text files change, plus the image file when you are able to place it. All of it goes in **one commit**.
 
-### 0. Place the hero image — only if you have filesystem access
+### 0. Upload the hero image — only if you have the file on disk
 
 ```bash
-cp "<path the user gave you>" blog/images/<slug>.webp
+node --env-file=.env scripts/upload-image.mjs "<path>" <slug>
 ```
 
-Skip this on claude.ai and tell the user to upload it, as described above.
+Use the URL it prints. Nothing image-related gets committed — R2 holds the file, the post holds the URL.
+
+Skip this on claude.ai and ask the user for the URL, as described above.
 
 ### 1. Create `blog/<slug>/index.html`
 
@@ -183,10 +191,10 @@ Date: <DATE_DISPLAY>
 - [ ] Template instruction comment removed
 - [ ] Slug in the folder name, canonical, og:url, JSON-LD and sitemap all match exactly
 - [ ] `DATE_DISPLAY` and `DATE_ISO` are the same day
-- [ ] `{{HERO_IMAGE}}` starts with `/` — the template prefixes `https://www.dobbyads.com` for `og:image`, `twitter:image` and JSON-LD, which are **required to be absolute URLs**. A relative path there means no image in social previews and an invalid `BlogPosting`.
-- [ ] Hero path also correct in the `<img>` tag and the index card (relative is right in those two)
+- [ ] `{{HERO_IMAGE}}` is a **full `https://` URL**, used byte-identically in all five places: `og:image`, `twitter:image`, JSON-LD `image`, the `<img>` tag, and the index card. `og:image` and JSON-LD `image` are required to be absolute — a relative path there means no social preview and an invalid `BlogPosting`.
+- [ ] That URL was printed by the upload script, never composed by you
 - [ ] Image extension matches the file's real format
-- [ ] Image file is either committed, or the user has been told exactly where to upload it
+- [ ] No image file committed to the repo — R2 holds the bytes
 - [ ] Body uses only the allowed tags — no `<hr>`, `<div>`, `<br>`, `<table>` or inline styles
 - [ ] Post ends with the FAQ section
 - [ ] Up to three related cards, every one pointing at a post that actually exists
