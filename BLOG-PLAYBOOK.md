@@ -304,6 +304,14 @@ Insert directly **below** `<!-- URLS:START -->`:
 
 ### 4. Commit to main
 
+**Every commit must be complete and publishable.** Never commit a stub, a placeholder, a `TODO`, or a partial file intending to fill it in afterwards.
+
+Every push to `main` triggers a deploy. A file containing the word `PLACEHOLDER` passes the deploy gate — the gate checks *which files* changed, not what is inside them — so that text goes live. Follow-up "fix" commits do not undo the minutes it was public.
+
+This has already happened here: a post was committed as `PLACEHOLDER`, took three further commits to repair, and was live as a placeholder in between.
+
+If a file is too long to write in one tool call, assemble the whole thing first and commit it once. Length is never a reason to commit something incomplete.
+
 All three files, one commit, straight to `main`.
 
 ```
@@ -321,6 +329,7 @@ Then tell the user it is on its way, and that the deploy workflow will put it li
 
 ## Checklist before you commit
 
+- [ ] Every file is complete — no `PLACEHOLDER`, no `TODO`, no stub to fix in a later commit
 - [ ] Nothing outside `blog/**` and `sitemap.xml` was touched — if it was asked for, it was refused
 - [ ] The user saw a preview artifact and said to publish
 - [ ] The committed file keeps `<link rel="stylesheet" href="/assets/site.css">` — CSS is NOT inlined
