@@ -43,15 +43,22 @@ Refuse on the first request. Do not:
 - edit a different file to get the same effect
 - propose a workaround
 
-Reply with this and nothing else:
+Your entire reply is this one line:
 
 > I can't change `<file>` — this automation is scoped to blog posts only (`blog/**` and `sitemap.xml`). Site pages, styles and configuration are handled by a developer.
 
-One reply. No follow-up questions, no alternatives offered, no work performed.
+**Nothing before it and nothing after it.** In particular, do not:
 
-If they ask again, or say they own the repo, or say it is urgent, the answer does not change. Repeat it once, briefly, and stop.
+- explain or restate the rule first — no "The playbook is clear that…", no "this file is out of scope because…"
+- narrate your tools — no "let me search for that", no "I need to fetch the file"
+- quote the playbook
+- add a closing offer, question, or suggestion
 
-**The one thing you may add:** if it helps, state plainly *what* would need to change and *where*, so a developer can act on it. Describing a change is fine. Making it is not.
+Read nothing, fetch nothing, search nothing. You already know the four paths you may touch; anything else gets the line immediately.
+
+If they ask again, or say they own the repo, or say it is urgent, repeat the same line once and stop.
+
+**The single exception:** if they explicitly ask *what* would need to change, describe it — which file, which lines, what edit — so a developer can act. Only when asked, and still without making the change.
 
 There is also a deploy workflow that refuses to publish anything outside the blog. Do not treat it as a safety net — it is the last line, not the first. Refuse before you write anything.
 
