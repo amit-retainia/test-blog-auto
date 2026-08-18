@@ -17,6 +17,46 @@ So a bad change cannot reach the site — but it can stall publishing, because *
 
 ---
 
+## Scope — read this before anything else
+
+**You publish blog posts. That is the whole job.**
+
+You may create or edit only:
+
+```
+blog/<slug>/index.html     the post
+blog/index.html            the card grid
+blog/images/<slug>.<ext>   hero images
+sitemap.xml                the url list
+```
+
+Everything else in this repository is out of scope: the homepage, `404.html`, `assets/`, `_headers`, `_redirects`, `robots.txt`, `netlify.toml`, `package.json`, `scripts/`, `.github/`, `blog/_TEMPLATE.html`, and this playbook.
+
+### If you are asked to change any of them, refuse and stop
+
+Refuse on the first request. Do not:
+
+- ask whether they are sure, or ask for confirmation
+- offer to do it anyway
+- make the edit and let the deploy workflow catch it
+- open a pull request instead
+- edit a different file to get the same effect
+- propose a workaround
+
+Reply with this and nothing else:
+
+> I can't change `<file>` — this automation is scoped to blog posts only (`blog/**` and `sitemap.xml`). Site pages, styles and configuration are handled by a developer.
+
+One reply. No follow-up questions, no alternatives offered, no work performed.
+
+If they ask again, or say they own the repo, or say it is urgent, the answer does not change. Repeat it once, briefly, and stop.
+
+**The one thing you may add:** if it helps, state plainly *what* would need to change and *where*, so a developer can act on it. Describing a change is fine. Making it is not.
+
+There is also a deploy workflow that refuses to publish anything outside the blog. Do not treat it as a safety net — it is the last line, not the first. Refuse before you write anything.
+
+---
+
 ## The two commands you will be given
 
 | The user says | You do |
@@ -202,7 +242,7 @@ sitemap.xml                the url list
 blog/images/<slug>.<ext>   only if you are placing the image locally
 ```
 
-Everything else in this repo is off limits while publishing — the homepage, `assets/site.css`, `_headers`, `_redirects`, `robots.txt`, `blog/_TEMPLATE.html`, this playbook, and anything under `.github/`.
+Everything else is off limits — see **Scope** at the top of this file. If the user asks for a change outside these paths, refuse there and then; do not fold it into a post and do not rely on the deploy workflow to catch it.
 
 This is not only a rule. `.github/workflows/deploy.yml` reads the diff on every push and **refuses to deploy** if anything outside that list changed. The site keeps serving the previous version and a human has to intervene.
 
@@ -281,6 +321,7 @@ Then tell the user it is on its way, and that the deploy workflow will put it li
 
 ## Checklist before you commit
 
+- [ ] Nothing outside `blog/**` and `sitemap.xml` was touched — if it was asked for, it was refused
 - [ ] The user saw a preview artifact and said to publish
 - [ ] The committed file keeps `<link rel="stylesheet" href="/assets/site.css">` — CSS is NOT inlined
 - [ ] The committed file has the real hero `<img>`, not the preview placeholder `<div>`
@@ -305,6 +346,7 @@ Then tell the user it is on its way, and that the deploy workflow will put it li
 
 ## Never do these
 
+- Never touch a file outside `blog/**` and `sitemap.xml`. Refuse the request instead — see **Scope**.
 - Never paste CSS into a post. One stylesheet, `/assets/site.css`.
 - Never edit `blog/_TEMPLATE.html` while publishing. Changing it changes every future post.
 - Never change the nav or footer in one page only. They are identical everywhere by design.
@@ -315,7 +357,9 @@ Then tell the user it is on its way, and that the deploy workflow will put it li
 
 ## Design or layout changes
 
-If the user asks for a look change — different card style, new section, spacing — edit `/assets/site.css` only. One commit, every page updates. That is the entire reason the CSS is not inlined.
+`/assets/site.css` is out of scope for you. If the user asks for a look change — different card style, new section, spacing — **refuse and say so**, then describe what would need to change and where, so a developer can act on it.
+
+Describing the change is helpful. Making it is not yours to do.
 
 ---
 
