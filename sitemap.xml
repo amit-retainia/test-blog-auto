@@ -1,1 +1,81 @@
-PLACEHOLDER
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Every published post needs a <url> block here, newest first.
+  Add new entries immediately after the start marker below.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://www.dobbyads.com/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- URLS:START -->
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-video-first-three-seconds</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-product-title-guidelines</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-backend-search-terms</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-product-titles-rank-convert</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-bullet-points-that-convert</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-a-plus-vs-premium-a-plus</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/amazon-listing-image-mistakes</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dobbyads.com/blog/best-ai-tools-product-photography</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- URLS:END -->
+
+</urlset>
