@@ -1,0 +1,185 @@
+# Deploy gate.
+#
+#   main         anyone commits here freely. NOT live.
+#   production   what Netlify serves. Only this workflow writes to it.
+#
+# On every push to main this diffs production..main. If only blog files
+# changed, it fast-forwards production and tags a release, and Netlify
+# deploys. If anything else changed it stops, names the files, and waits
+# for a human.
+#
+# REQUIRED Netlify setting, or none of this does anything:
+#   Site configuration > Build & deploy > Production branch = production
+# If Netlify is still watching main, it deploys before this workflow can
+# have an opinion.
+#
+# To release a blocked commit: Actions > deploy > Run workflow > force = true.
+# Everything currently sitting on main gets promoted, so read the blocked
+# list first and revert anything you did not intend.
+
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Promote even though files outside the blog changed"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+# Never promote two commits at once.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Work out what changed
+        id: diff
+        run: |
+          set -euo pipefail
+
+          if ! git show-ref --verify --quiet refs/remotes/origin/production; then
+            echo "No production branch yet — creating it from main."
+            echo "state=first-run" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed=$(git diff --name-only origin/production origin/main)
+
+          if [ -z "$changed" ]; then
+            echo "production is already level with main."
+            echo "state=nothing-to-do" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Changed since the last deploy:"
+          echo "$changed" | sed 's/^/  /'
+
+          blocked=""
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              # Shapes every future post — protected even though it lives in blog/.
+              blog/_TEMPLATE.html) blocked="${blocked}${f}"$'\n' ;;
+              # Allowed: posts, the card grid, hero images, the sitemap.
+              blog/*)              ;;
+              sitemap.xml)         ;;
+              # Everything else needs a human.
+              *)                   blocked="${blocked}${f}"$'\n' ;;
+            esac
+          done <<< "$changed"
+
+          {
+            echo "changed<<CHANGED_EOF"
+            echo "$changed"
+            echo "CHANGED_EOF"
+            echo "blocked<<BLOCKED_EOF"
+            echo "$blocked"
+            echo "BLOCKED_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ -n "$blocked" ]; then
+            echo "state=blocked" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=clean" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Stop — changes outside the blog
+        if: steps.diff.outputs.state == 'blocked' && inputs.force != true
+        env:
+          BLOCKED: ${{ steps.diff.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Deploy blocked"
+            echo ""
+            echo "These files are outside the blog, so this commit was **not** deployed:"
+            echo ""
+            echo '```'
+            printf '%s' "$BLOCKED"
+            echo '```'
+            echo ""
+            echo "Publishing a post may only change:"
+            echo ""
+            echo "- \`blog/<slug>/index.html\`"
+            echo "- \`blog/index.html\`"
+            echo "- \`blog/images/**\`"
+            echo "- \`sitemap.xml\`"
+            echo ""
+            echo "The site is untouched and still serving the last good deploy."
+            echo ""
+            echo "### To fix"
+            echo ""
+            echo "**Change was a mistake** — revert it on \`main\`. The next push deploys normally."
+            echo ""
+            echo "**Change was intended** — Actions -> deploy -> Run workflow -> force = true."
+            echo "That promotes everything currently on \`main\`, so check the list above first."
+            echo ""
+            echo "Blog posts pushed after this one will not deploy either until this is resolved."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "Blocked — see the job summary."
+          exit 1
+
+      - name: Promote main to production
+        if: steps.diff.outputs.state == 'clean' || steps.diff.outputs.state == 'first-run' || inputs.force == true
+        run: |
+          set -euo pipefail
+          git push origin "${{ github.sha }}:refs/heads/production"
+          echo "production now points at ${{ github.sha }}"
+
+      - name: Tag and release
+        if: steps.diff.outputs.state == 'clean' || steps.diff.outputs.state == 'first-run' || inputs.force == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGED: ${{ steps.diff.outputs.changed }}
+          FORCED: ${{ inputs.force }}
+        run: |
+          set -euo pipefail
+
+          tag="deploy-$(date -u +%Y%m%d-%H%M%S)"
+          git tag "$tag" "${{ github.sha }}"
+          git push origin "$tag"
+
+          {
+            echo "Deployed \`${GITHUB_SHA:0:7}\` to production."
+            if [ "$FORCED" = "true" ]; then
+              echo ""
+              echo "**Force-promoted** — this release includes changes outside the blog."
+            fi
+            if [ -n "${CHANGED:-}" ]; then
+              echo ""
+              echo "### Files in this deploy"
+              echo '```'
+              printf '%s\n' "$CHANGED"
+              echo '```'
+            fi
+          } > release-notes.md
+
+          gh release create "$tag" --title "$tag" --notes-file release-notes.md
+          rm -f release-notes.md
+
+          {
+            echo "## Deployed"
+            echo ""
+            echo "Release **$tag** — \`${GITHUB_SHA:0:7}\`"
+            echo ""
+            echo "Netlify is building from \`production\` now."
+            echo ""
+            echo "Roll back with:"
+            echo '```'
+            echo "git push origin <previous-tag>:refs/heads/production --force"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

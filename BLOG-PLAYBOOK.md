@@ -2,9 +2,18 @@
 
 **Claude: read this file completely before writing or publishing any post. It is the only source of truth for how posts are built here.**
 
-This is a static HTML site on Netlify. There is no CMS, no build step, no database. A post goes live when a pull request lands on `main` — Netlify redeploys automatically, roughly 60 seconds later.
+This is a static HTML site on Netlify. There is no CMS and no build step.
 
-`main` is protected. You cannot push to it directly, and you must not try.
+Two branches matter:
+
+| Branch | What it is |
+|---|---|
+| `main` | where you commit. **Not live.** |
+| `production` | what Netlify serves. Only the deploy workflow writes to it. |
+
+You commit to `main`. A GitHub Action then checks what changed. If the commit only touched blog files it promotes `main` to `production` and Netlify deploys, roughly a minute later. If it touched anything else the deploy stops and waits for a human.
+
+So a bad change cannot reach the site — but it can stall publishing, because **nothing else deploys until it is resolved**. Stay inside the blog.
 
 ---
 
@@ -13,7 +22,7 @@ This is a static HTML site on Netlify. There is no CMS, no build step, no databa
 | The user says | You do |
 |---|---|
 | "write a blog for Dobby about X" | Write the post, then show it as a **rendered preview artifact**. **Commit nothing.** |
-| "make it live" / "publish it" | Branch, commit, open a pull request, merge it — see *Publishing*. |
+| "make it live" / "publish it" | Commit the three files to `main` — see *Publishing*. |
 
 Never commit on the first command. Drafting and publishing are always separate steps, so the user gets a review pass.
 
@@ -195,17 +204,19 @@ blog/images/<slug>.<ext>   only if you are placing the image locally
 
 Everything else in this repo is off limits while publishing — the homepage, `assets/site.css`, `_headers`, `_redirects`, `robots.txt`, `blog/_TEMPLATE.html`, this playbook, and anything under `.github/`.
 
-This is not only a rule. `.github/CODEOWNERS` plus branch protection makes GitHub **refuse the merge** if your pull request touches any of those. If a merge is blocked for that reason, do not try to work around it — say what you changed and why, and let the user decide.
+This is not only a rule. `.github/workflows/deploy.yml` reads the diff on every push and **refuses to deploy** if anything outside that list changed. The site keeps serving the previous version and a human has to intervene.
 
-If the user asks for a design change, that is a separate job with its own pull request, not something you fold into a post.
+Worse, the block is not limited to your commit. Until someone reverts or force-promotes it, **no further blog post deploys either**. One stray file edit stops the whole pipeline.
+
+If the user asks for a design change, that is a separate commit and a separate conversation — never folded into a post.
 
 ---
 
 ## Publishing
 
-Never push to `main`. `main` is protected and direct pushes are rejected.
+Commit all three files to `main` in **one commit**. Pushing is enough — the deploy workflow takes it from there.
 
-The flow is: **branch → commit → pull request → merge**. Merging is what deploys.
+Do not touch the `production` branch. Only the workflow writes to it.
 
 ### 0. Upload the hero image — only if you have the file on disk
 
@@ -251,15 +262,9 @@ Insert directly **below** `<!-- URLS:START -->`:
   </url>
 ```
 
-### 4. Branch, commit, pull request, merge
+### 4. Commit to main
 
-Create the branch first, put all three files on it in **one commit**, then open a pull request into `main` and merge it.
-
-```
-branch:  post/<slug>
-```
-
-Commit message:
+All three files, one commit, straight to `main`.
 
 ```
 Publish: <post title>
@@ -268,14 +273,9 @@ Slug: <slug>
 Date: <DATE_DISPLAY>
 ```
 
-Pull request title: `Publish: <post title>`
-Pull request body: the slug, the date, and one line on what the post covers.
+Then tell the user it is on its way, and that the deploy workflow will put it live in about a minute.
 
-Then merge it — squash merge, delete the branch.
-
-**If the merge is refused**, GitHub is telling you the diff touched a protected path. Do not retry, do not force it, do not open a second pull request. Report which files you changed and stop.
-
-Netlify deploys on the merge to `main`, not on the branch push. Nothing is live until the pull request is merged.
+**If the deploy workflow fails**, it is telling you the commit touched something outside the blog. Do not push again to try to fix it, and never touch the `production` branch. Report which files you changed and stop — a human decides whether to revert or release it.
 
 ---
 
@@ -299,7 +299,7 @@ Netlify deploys on the merge to `main`, not on the branch push. Nothing is live 
 - [ ] Card added below `CARDS:START`, sitemap entry added below `URLS:START`
 - [ ] Only these paths changed: blog/<slug>/, blog/index.html, sitemap.xml
 - [ ] Nothing outside them — no homepage, no assets/, no _TEMPLATE, no .github/
-- [ ] One commit, on branch post/<slug>, merged via pull request — never pushed to main
+- [ ] One commit on `main`. Never a commit on `production`.
 
 ---
 
